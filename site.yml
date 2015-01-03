@@ -6,7 +6,7 @@
   # 设置部署用户的密码，并确认
   vars_prompt:
   - name: logwatch_email
-    prompt: 请输入邮箱，用于接收系统发出的高风险报告邮件
+    prompt: 请输入邮箱，用于接收系统发出的报告邮件
     private: no
   - name: deploy_account
     prompt: 新建一个部署用户，请输入用户名
