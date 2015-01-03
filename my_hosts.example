@@ -1,0 +1,14 @@
+[local]
+127.0.0.1:2222
+
+[aliyun-servers]
+aliyun-servers-1 	ansible_connection=ssh
+
+[linode-servers]
+linode-servers-1	ansible_connection=ssh
+linode-servers-2
+
+[aws-servers]
+aws-servers-1
+aws-servers-2
+aws-servers-3

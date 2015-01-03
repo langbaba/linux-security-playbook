@@ -1,0 +1,37 @@
+---
+
+- hosts: all
+  # 设置邮箱，用于接收系统发出的高风险报告
+  # 设置部署用户名，建议将用户命名为 deploy
+  # 设置部署用户的密码，并确认
+  vars_prompt:
+  - name: logwatch_email
+    prompt: 请输入邮箱，用于接收系统发出的高风险报告邮件
+    private: no
+  - name: deploy_account
+    prompt: 新建一个部署用户，请输入用户名
+    private: no
+  - name: deploy_password
+    prompt: 请设置该部署用户的密码
+    private: yes
+    encrypt: sha512_crypt
+    confirm: yes
+    salt_size: 7
+
+  # 根据不同的操作系统运行相应的任务，Debian:{ Debian, Ubuntu}, RedHat: {CentOS, Red Hat Enterprise Linux}
+  tasks:
+  - include: tasks/family_redhat.yml
+    when: ansible_os_family == 'RedHat'
+  - include: tasks/family_debian.yml
+    when: ansible_os_family == 'Debian'
+
+  # 重启 ssh 服务
+  handlers:
+  - name: restart_sshd
+    service: name=sshd state=restarted
+    when: ansible_os_family == 'RedHat'
+  - name: restart_ssh
+    service: name=ssh state=restarted
+    when: ansible_os_family == 'Debian'
+
+

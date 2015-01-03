@@ -1,0 +1,41 @@
+---
+# 适用的服务器操作系统为 CentOS 或 Red Hat Enterprise Linux
+
+- name: 更新软件包
+  yum: name=* state=latest
+
+- name: 创建一个部署用户
+  user: name="{{deploy_account}}" password="{{deploy_password}}"
+
+- name: 上传个人 SSH 公钥到部署用户认证的 SSH 公钥列表
+  authorized_key: user="{{deploy_account}}" key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: 为部署用户添加 sudo 权限
+  lineinfile: dest=/etc/sudoers regexp="{{deploy_account}} ALL" line="{{deploy_account}} ALL=(ALL) ALL" state=present validate='visudo -cf %s'
+
+- name: 禁用 root 用户的 SSH 登录
+  lineinfile: dest=/etc/ssh/sshd_config regexp="^PermitRootLogin" line="PermitRootLogin no" state=present
+  notify: restart_sshd
+
+- name: 禁用 SSH 密码验证登录，未来只能用个人 SSH 公钥自动验证登录
+  lineinfile: dest=/etc/ssh/sshd_config regexp="^PasswordAuthentication" line="PasswordAuthentication no" state=present
+  notify: restart_sshd
+
+- name: 安装 Fedora 小组维护的一个软件仓库项目 epel-release
+  yum: name=epel-release state=installed
+
+- name: 安装 fail2ban
+  yum: name=fail2ban state=installed
+
+# - name: 安装可用的 bug 修复包和系统安全修复包 unattended-upgrades
+#   yum: name=unattended-upgrades state=present
+
+# - name: 修改系统自动安装配置，每天自动安装可用的 bug 修复包和系统安全修复包
+#   lineinfile: dest=/etc/yum/yum.conf.d/10periodic line='yum::Periodic::Unattended-Upgrade "1";'
+
+- name: 安装 logwatch 程序
+  yum: name=logwatch state=installed
+
+- name: 设置 logwatch 程序每天检查 log 文件，若发现高级别风险，则发送邮件
+  lineinfile: dest=/etc/cron.daily/00logwatch regexp="^/usr/sbin/logwatch" line="/usr/sbin/logwatch --output mail --mailto $logwatch_email --detail high" state=present create=yes
+
