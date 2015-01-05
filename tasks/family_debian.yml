@@ -36,6 +36,6 @@
 - name: 安装 logwatch 程序
   apt: name=logwatch state=installed
 
-- name: 设置 logwatch 程序每天检查 log 文件，若发现高级别风险，则发送邮件
+- name: 设置 logwatch 程序每天检查 log 文件并发送报告邮件，报告高级别风险
   lineinfile: dest=/etc/cron.daily/00logwatch regexp="^/usr/sbin/logwatch" line="/usr/sbin/logwatch --output mail --mailto $logwatch_email --detail high" state=present create=yes
 

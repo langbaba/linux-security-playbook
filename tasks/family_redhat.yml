@@ -27,15 +27,9 @@
 - name: 安装 fail2ban
   yum: name=fail2ban state=installed
 
-# - name: 安装可用的 bug 修复包和系统安全修复包 unattended-upgrades
-#   yum: name=unattended-upgrades state=present
-
-# - name: 修改系统自动安装配置，每天自动安装可用的 bug 修复包和系统安全修复包
-#   lineinfile: dest=/etc/yum/yum.conf.d/10periodic line='yum::Periodic::Unattended-Upgrade "1";'
-
 - name: 安装 logwatch 程序
   yum: name=logwatch state=installed
 
-- name: 设置 logwatch 程序每天检查 log 文件，若发现高级别风险，则发送邮件
+- name: 设置 logwatch 程序每天检查 log 文件并发送报告邮件，报告高级别风险
   lineinfile: dest=/etc/cron.daily/00logwatch regexp="^/usr/sbin/logwatch" line="/usr/sbin/logwatch --output mail --mailto $logwatch_email --detail high" state=present create=yes
 
